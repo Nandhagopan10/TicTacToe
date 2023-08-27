@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TicTacToe</title>
+    <link rel="stylesheet" href="game.css">
+</head>
+<body>
+    <!-- <div id="head">
+        <h1>TIC-TAC-TOE</h1>
+    </div> -->
+    <div id="winner-message"></div>
+
+
+
+    <div id="cont">
+        <!-- <img src="mixkit-negative-answer-lose-2032.mp3" alt=""> -->
+        <div id="smallcont">
+            <button id="btn0" class="btn" name="tictic-button"></button>
+            <button id="btn1" class="btn" name="tictic-button"></button>
+            <button id="btn2" class="btn" name="tictic-button"></button>
+            <button id="btn3" class="btn" name="tictic-button"></button>
+            <button id="btn4" class="btn" name="tictic-button"></button>
+            <button id="btn5" class="btn" name="tictic-button"></button>
+            <button id="btn6" class="btn" name="tictic-button"></button>
+            <button id="btn7" class="btn" name="tictic-button"></button>
+            <button id="btn8" class="btn" name="tictic-button"></button>
+        </div>
+    </div>
+</body>
+
+<script>
+
+let clicksound = new Audio("mixkit-select-click-1109 (mp3cut.net).mp3");
+let winsound = new Audio("mixkit-video-game-win-2016.mp3");
+let drawsound = new Audio("mixkit-negative-answer-lose-2032.mp3");
+
+let currentPlayer = 'X'; // 'X' represents the player, 'O' represents the AI
+let cells = new Array(9).fill(''); // Represents the state of the board
+let userWins = 0;
+let aiWins = 0;
+
+document.getElementById('smallcont').addEventListener('click', function () {
+    clicksound.play();
+});
+
+function togglePlayer() {
+    currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+}
+
+function updateCell(cellIndex) {
+    if (cells[cellIndex] === '') {
+        cells[cellIndex] = currentPlayer;
+        document.getElementById('btn' + cellIndex).innerText = currentPlayer;
+        document.getElementById('btn' + cellIndex).disabled = true;
+        check();
+        togglePlayer();
+        if (currentPlayer === 'O') {
+            performAIPlay();
+        }
+    }
+}
+
+function performAIPlay() {
+    // You need to implement the AI's move logic here
+    // For simplicity, let's just randomly choose an empty cell
+    let emptyCells = cells.reduce((acc, val, index) => (val === '' ? acc.concat(index) : acc), []);
+    if (emptyCells.length > 0) {
+        let randomIndex = Math.floor(Math.random() * emptyCells.length);
+        updateCell(emptyCells[randomIndex]);
+    }
+}
+
+function check() {
+    const winCombinations = [
+        [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
+        [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columns
+        [0, 4, 8], [2, 4, 6]            // Diagonals
+    ];
+
+    for (const combination of winCombinations) {
+        const [a, b, c] = combination;
+        if (cells[a] && cells[a] === cells[b] && cells[a] === cells[c]) {
+            if (cells[a] === 'X') {
+                winsound.play();
+                userWins++;
+                displayWinnerMessage('Booyah! X Wins');
+            } else if (cells[a] === 'O') {
+                winsound.play();
+                aiWins++;
+                displayWinnerMessage('Booyah! Y Wins');
+            }
+            updateScore();
+            resetGame();
+            return;
+        }
+    }
+
+    if (cells.every(cell => cell !== '')) {
+        drawsound.play();
+        displayWinnerMessage("It's a draw!");
+        resetGame();
+    }
+}
+
+function displayWinnerMessage(message) {
+    const winnerMessageElement = document.getElementById('winner-message');
+    winnerMessageElement.innerText = message;
+}
+
+function updateScore() {
+    document.getElementById('user-score').innerText = `User Wins: ${userWins}`;
+    document.getElementById('ai-score').innerText = `AI Wins: ${aiWins}`;
+}
+
+function resetGame() {
+    cells = new Array(9).fill('');
+    for (let i = 0; i < 9; i++) {
+        document.getElementById('btn' + i).innerText = '';
+        document.getElementById('btn' + i).disabled = false;
+    }
+    displayWinnerMessage('');
+}
+
+for (let i = 0; i < 9; i++) {
+    document.getElementById('btn' + i).addEventListener('click', function () {
+        updateCell(i);
+    });
+}
+
+updateScore();
+
+
+
+</script>
+
+</html>
